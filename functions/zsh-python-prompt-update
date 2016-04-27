@@ -41,7 +41,9 @@ function _zsh_python_prompt_pyenv(){
     elif [[ $python_path =~ '^/usr/local' ]]; then
         pytype='local'
     elif [[ $python_path =~ '/.pyenv/versions/' ]]; then
-        pytype=$(echo "$python_path" | sed -e 's%.*\.pyenv/versions/\([^/]*\)/.*%\1%')
+        # pytype=$(echo "$python_path" | sed -e 's%.*\.pyenv/versions/\([^/]*\)/.*%\1%')
+        pytype=$(echo "$python_path" | sed -e 's%.*\.pyenv/versions/.*/envs/\([^/]*\)/.*%\1%')
+
         if [[ $pytype == $pyver ]]; then
             pytype=
         fi
