@@ -33,19 +33,22 @@ function _zsh_python_prompt_pyenv(){
     zstyle ':zsh-python-prompt:' updated_at "$now"
     zstyle ':zsh-python-prompt:pyenv:' pyver_file "$pyver_file"
 
-    python_path=$(python -c "import sys,os; print(os.path.realpath(sys.executable))")
+    # python_path=$(python -c "import sys,os; print(os.path.realpath(sys.executable))")
+    python_path=$(python -c "import sys,os; print(os.path.realpath(sys.exec_prefix))")
     pyver=$(_zsh_python_prompt_get_pyver)
 
     if [[ $python_path == '/usr/bin/python' ]]; then
         pytype='system'
     elif [[ $python_path =~ '^/usr/local' ]]; then
         pytype='local'
+    elif [[ $python_path =~ '/.pyenv/versions/.*/envs/' ]]; then
+        # pytype=$(echo "$python_path" | sed -e 's%.*\.pyenv/versions/.*/envs/\([^/]*\)/.*%\1%')
+        pytype=$(echo "$python_path" | cut -d"/" -f8)
     elif [[ $python_path =~ '/.pyenv/versions/' ]]; then
-        # pytype=$(echo "$python_path" | sed -e 's%.*\.pyenv/versions/\([^/]*\)/.*%\1%')
-        pytype=$(echo "$python_path" | sed -e 's%.*\.pyenv/versions/.*/envs/\([^/]*\)/.*%\1%')
-
+        #pytype=$(echo "$python_path" | sed -e 's%.*\.pyenv/versions/\([^/]*\)/.*%\1%')
+        pytype=$(echo "$python_path" | cut -d"/" -f6)
         if [[ $pytype == $pyver ]]; then
-            pytype=
+            pytype=vanilla
         fi
     else
         pytype=$python_path
@@ -127,7 +130,8 @@ function zsh-python-prompt-update(){
     fi
 
     if [[ $python_path =~ '/.pyenv/shims/python'
-        || $python_path =~ '/.pyenv/versions/' ]]; then
+        || $python_path =~ '/.pyenv/versions/'
+        || $python_path =~ '/.pyenv/versions/.*/envs/' ]]; then
         # pyenv
         _zsh_python_prompt_pyenv "$python_path"
     else
